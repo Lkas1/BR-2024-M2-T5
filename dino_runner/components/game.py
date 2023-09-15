@@ -38,6 +38,8 @@ class Game:
         # Game loop: events - update - draw
         self.playing = True
         self.obstacle_manager.reset_obstacles()
+        self.score = 0
+        self.game_speed = 20
         while self.playing:
             self.events()
             self.update()
@@ -135,23 +137,36 @@ class Game:
             self.screen.blit(text, text_rect)
 
         else:
+            
+            font = pygame.font.Font(FONT_STYLE, 22)
 
-            self.screen.blit(ICON, (half_screen_widht - 20, half_screen_height - 140))
+            self.screen.blit(ICON, (half_screen_widht - 40, half_screen_height - 140))
 
-            ## mostrar mensagem de 'Press any key to restar'
+            text = font.render("Press any key to restart", True, (0, 0, 0))
+            
+            text_rect = text.get_rect()
 
-            ## mostrar score atingido
+            text_rect.center = (half_screen_widht, half_screen_height)
 
-            ## mostrar death_count
-
-
-
-
-            ### Resetar score e game_speed quando reiniciar uma nova rodada do jogo
-
-            ### Criar método para remover a repetição de código para o texto
+            self.screen.blit(text, text_rect)    
 
 
+            score_text = font.render(f"Score: {self.score}", True, (0, 0, 0))
+
+            score_rect = score_text.get_rect()
+
+            score_rect.center = (half_screen_widht, half_screen_height + 25)
+
+            self.screen.blit(score_text, score_rect)  
+
+
+            death_text = font.render(f"Deaths: {self.death_count}", True, (0, 0, 0))
+
+            death_rect = death_text.get_rect()
+
+            death_rect.center = (half_screen_widht, half_screen_height - 25)
+
+            self.screen.blit(death_text, death_rect)
 
 
         pygame.display.update()
