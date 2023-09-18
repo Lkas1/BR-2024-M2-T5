@@ -1,15 +1,16 @@
 import pygame
 from pygame.sprite import Sprite
-from dino_runner.utils.constants import RUNNING, JUMPING, DUCKING, DEFAULT_TYPE, SHIELD_TYPE, DUCKING_SHIELD, JUMPING_SHIELD, RUNNING_SHIELD
+from dino_runner.utils.constants import RUNNING, JUMPING, DUCKING, DEFAULT_TYPE, SHIELD_TYPE, DUCKING_SHIELD, JUMPING_SHIELD, RUNNING_SHIELD, DAGGER_TYPE, DUCKING_DAGGER, JUMPING_DAGGER, RUNNING_DAGGER, HOURGLASS_TYPE
 
 X_POS = 80
-Y_POS = 310
+Y_POS = 300
 JUMP_VEL = 8.5
-Y_POS_DUCK = 340
+Y_POS_DUCK = 320
+Y_POS_DAGGER = 325
 
-DUCK_IMG = { DEFAULT_TYPE: DUCKING, SHIELD_TYPE: DUCKING_SHIELD }
-JUMP_IMG = { DEFAULT_TYPE: JUMPING, SHIELD_TYPE: JUMPING_SHIELD }
-RUN_IMG = { DEFAULT_TYPE: RUNNING, SHIELD_TYPE: RUNNING_SHIELD }
+DUCK_IMG = { DEFAULT_TYPE: DUCKING, SHIELD_TYPE: DUCKING_SHIELD, DAGGER_TYPE: DUCKING_DAGGER, HOURGLASS_TYPE: DUCKING }
+JUMP_IMG = { DEFAULT_TYPE: JUMPING, SHIELD_TYPE: JUMPING_SHIELD, DAGGER_TYPE: JUMPING_DAGGER, HOURGLASS_TYPE: JUMPING }
+RUN_IMG = { DEFAULT_TYPE: RUNNING, SHIELD_TYPE: RUNNING_SHIELD,DAGGER_TYPE: RUNNING_DAGGER, HOURGLASS_TYPE: RUNNING }
 
 class Dinosaur(Sprite):
     def __init__(self):
@@ -19,15 +20,21 @@ class Dinosaur(Sprite):
         self.dino_rect.x = X_POS
         self.dino_rect.y = Y_POS
         self.step_index = 0
+        self.duck_index = 0
         self.jump_vel = JUMP_VEL
         self.dino_run = True
         self.dino_jump = False
         self.dino_duck = False
         self.setup_state()
 
+        self.jump_sound = pygame.mixer.Sound('dino_runner/assets/Sounds/JumpSound.ogg')
+        self.jump_sound.set_volume(0.2)
+
     def setup_state(self):
         self.has_power_up = False
         self.shield = False
+        self.dagger = False
+        self.hourglass = False
         self.show_text = False
         self.power_up_time = 0    
 
@@ -43,6 +50,7 @@ class Dinosaur(Sprite):
             self.dino_jump = True
             self.dino_run = False
             self.dino_duck = False
+            self.jump_sound.play()
         
             
             
@@ -56,15 +64,37 @@ class Dinosaur(Sprite):
             self.dino_run = True
             self.dino_duck = False
 
-        if self.step_index >= 9:
+        if self.type == DEFAULT_TYPE and self.step_index >= len(RUNNING):
             self.step_index = 0
+        if self.type == DAGGER_TYPE and self.step_index >= len(RUNNING_DAGGER):
+            self.step_index = 0
+        if self.type == SHIELD_TYPE and self.step_index >= len(RUNNING_SHIELD):
+            self.step_index = 0
+        if self.type == HOURGLASS_TYPE and self.step_index >= len(RUNNING):
+            self.step_index = 0
+        
+        if self.type == DEFAULT_TYPE and self.duck_index >= len(DUCKING):
+            self.duck_index = 0
+        if self.type == DAGGER_TYPE and self.duck_index >= len(DUCKING_DAGGER):
+            self.duck_index = 0
+        if self.type == SHIELD_TYPE and self.duck_index >= len(DUCKING_SHIELD):
+            self.duck_index = 0
+        if self.type == HOURGLASS_TYPE and self.duck_index >= len(DUCKING):
+            self.duck_index = 0
+        
+
+
 
     def run(self):        
-        self.image = RUN_IMG[self.type][self.step_index // 5]
+        self.image = RUN_IMG[self.type][int(self.step_index)]
         self.dino_rect = self.image.get_rect()
         self.dino_rect.x = X_POS
         self.dino_rect.y = Y_POS
-        self.step_index += 1
+        self.step_index += 0.3
+
+        if self.type == DAGGER_TYPE:
+            self.dino_rect.y = Y_POS_DAGGER
+
 
     def jump(self):
         self.image = JUMP_IMG[self.type]
@@ -76,13 +106,14 @@ class Dinosaur(Sprite):
             self.dino_rect.y = Y_POS
             self.dino_jump = False
             self.jump_vel = JUMP_VEL   
+            
 
     def duck(self):
-        self.image = DUCK_IMG[self.type][self.step_index // 5]
+        self.image = DUCK_IMG[self.type][int(self.duck_index)]
         self.dino_rect = self.image.get_rect()
         self.dino_rect.x = X_POS
         self.dino_rect.y = Y_POS_DUCK
-        self.step_index += 1
+        self.duck_index += 0.3
         self.dino_duck = False
 
               
